@@ -1,0 +1,60 @@
+(unless (boundp '*pickview*) (setq *pickview* (pickview :no-menu t)))
+(send *pickview* :resize 600 840)
+;; (send *pickview* :viewer :viewsurface :bg-color #f(0.3 0.5 0.2 0))
+;; (send *pickview* :viewer :viewsurface :bg-color #f(0.7 0.7 0.7))
+(send *pickview* :viewer :viewsurface :bg-color #f(0.8 0.65 0.5))
+;; (send *pickview* :white-back t)
+
+(setq *drcbox* (make-drcbox-scene)))
+;; (send (elt (send *drcbox* :parts) 5) :locate #f(-800 400 600) :world)
+(send (elt (send *drcbox* :parts) 6) :locate #f(-150 300 400) :world)
+(unless (boundp '*hrp2jsknts*) (setup-model-for-hrp2))
+(setq *floor* (make-cube 3000 5000 1))
+(send *floor* :set-color :brown)
+(send *floor* :locate #f(-500 -1000 0) :world)
+
+(setq *pipe1* (make-cylinder 70 700))
+(send *pipe1* :set-color :gray)
+;; (send *pipe1* :newcoords (make-coords :pos #f(-900 400 0) :rpy (float-vector (deg2rad 0) 0 0)))
+
+(setq *pipe2* (make-cylinder 70 3000))
+(send *pipe2* :set-color :gray)
+;; (send *pipe2* :newcoords (make-coords :pos #f(-900 400 600) :rpy (float-vector 0 0 (deg2rad 90))))
+(send *pipe2* :newcoords (make-coords :pos #f(0 0 630) :rpy (float-vector 0 0 (deg2rad 90))))
+
+(send (elt (send *drcbox* :objects) 5) :newcoords (make-coords :pos #f(-120 400 1300) :rpy (float-vector 0 (deg2rad -90) 0)))
+(send (elt (send *drcbox* :objects) 5) :rotate (deg2rad 40) :z)
+
+(send *pipe1* :assoc *pipe2*)
+(send *pipe1* :newcoords (make-coords :pos #f(-600 1000 0) :rpy (float-vector (deg2rad 0) 0 0)))
+
+(setq *wall* (make-cube 3000 4000 10))
+(send *wall* :set-color #f(0.5 0.3 0.2))
+(send *wall* :newcoords (make-coords :pos #f(-350 0 1500) :rpy (float-vector 0 (deg2rad 90) 0)))
+
+(setq *block* (make-cube 150 2000 200))
+(send *block* :set-color #f(0.3 0.3 0.3))
+(send *block* :newcoords (make-coords :pos #f(-420 100 100)))
+
+(objects (flatten (elt (send *drcbox* :parts) 5) (list *hrp2jsknts* *floor* *pipe1* *pipe2* *wall* *block*)))
+(send *pickview* :change-zoom 2)
+(send *pickview* :viewangle #f(8800.0 120.0 7.0))
+(send *pickview* :move-view-target #f(-100 -400 650))
+;; (send *pickview* :viewpoint #f(-3500 7000 2000))
+
+(send *hrp2jsknts* :legs :crotch-p :joint-angle -60)
+(send *hrp2jsknts* :arms :shoulder-p :joint-angle 20)
+(send *hrp2jsknts* :arms :wrist-p :joint-angle -30)
+(send *hrp2jsknts* :lleg :move-end-pos #f(200 100 0))
+(send *hrp2jsknts* :rleg :move-end-pos #f(200 -100 0))
+;; (send *hrp2jsknts* :arms :move-end-pos #f(-150 0 150) :local)
+;; (send *hrp2jsknts* :larm :wrist-p :joint-angle 0)
+;; (send *hrp2jsknts* :rarm :wrist-p :joint-angle 0)
+(send *hrp2jsknts* :fix-leg-to-coords (make-coords :pos #f(-650 300 0) :rpy (float-vector (deg2rad 180) 0 0)))
+;; (send *hrp2jsknts* :head :neck-p :joint-angle 30)
+
+(defun draw-on-convex ()
+  (send (instance face :init :vertices (quickhull (flatten (send-all (mapcar #'(lambda (i faces) (elt faces i)) '(7 1 1 1) (reduce #'(lambda (ret limb) (car (last (mapcar #'(lambda (val) (push-back val ret)) (mapcar #'(lambda (idx) (send (elt (send *hrp2jsknts* limb :links) idx) :faces)) '(5 6))))) ) '(nil :lleg :rleg))) :vertices)))) :draw-on :flush t :width 3 :color #f(0 1 0)))
+
+(defun save ()
+  (send *pickview* :viewer :viewsurface :write-to-jpg-file "shuffle-motion_plant_hrp2_org.jpg"))
