@@ -1,4 +1,9 @@
+(unless (boundp '*irtviewer*) (make-irtviewer :draw-origin nil))
 (send *irtviewer* :resize 800 800)
+(send *irtviewer* :look1 #f(0 100 0) 180 90)
+(send *irtviewer* :viewer :viewdistance 4)
+(send *irtviewer* :change-background #f(0.6 0.6 0.6))
+(send *irtviewer* :draw-objects)
 
 (setq rfoot-vertex-list '(#f(130 75 0) #f(130 -55 0) #f(-100 -55 0) #f(-100 75 0)))
 
