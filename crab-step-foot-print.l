@@ -19,14 +19,22 @@
               (send (make-line pos (v+ pos dpos)) :draw-on :flush t :color trajectory-color :width width)
               (setq pos (v+ pos dpos) yaw (+ yaw dyaw))
               (setq foot-coord (make-coords :pos pos :rpy (list (deg2rad yaw) 0 0)))
-              (send foot-coord :draw-on :flush t :size 30)
               (send (instance face :init :vertices (quickhull (mapcar #'(lambda (vertex) (send foot-coord :transform-vector vertex)) rfoot-vertex-list)))
                     :draw-on :flush t :color sole-color :width width)
               )
           foot-pos-list foot-yaw-list)
     ))
 
+(defun draw-foot-origin (foot-pos-list &key (color #f(1 0 0)))
+  (setq pos #f(0 0 0))
+  (send *irtviewer* :viewer :viewsurface :line-width 5)
+  (send *irtviewer* :viewer :viewsurface :color color)
+  (mapc #'(lambda (dpos) (setq pos (v+ pos dpos)) (send (send *irtviewer* :viewer) :draw-circle (make-coords :pos pos) :radius 3 :flush t)) foot-pos-list))
+
 (draw-foot-print ref-rfoot-pos-list ref-rfoot-yaw-list :sole-color #f(0 1 0) :trajectory-color #f(0 0.5 0) :width 3)
 (draw-foot-print act-rfoot-pos-list act-rfoot-yaw-list :sole-color #f(0 0 1) :trajectory-color #f(0 0 0.5) :width 2)
+
+(draw-foot-origin ref-rfoot-pos-list :color #f(0 1 0))
+(draw-foot-origin act-rfoot-pos-list :color #f(0 0 1))
 
 (send *irtviewer* :viewer :viewsurface :write-to-image-file (format nil "~a/crab-step-foot-print_org.png" (unix:getenv "HOME")))
