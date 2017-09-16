@@ -47,6 +47,19 @@
     (list A B distributed-fz-vec)
     ))
 
+(defun draw-dfcc-animation ()
+  (let ((i 0) (dt 0.01) (cycle 1))
+    (do-until-key
+     (draw-dfcc :force-vec #f(200 100 1000) :moment-vec (float-vector (* -15 (sin (* 2 pi (/ (* i dt) cycle)))) (* 15 (sin (* 2 pi (/ (* i dt) cycle)))) 45)
+                :cur-pos (send *robot* *support-leg* :end-coords :worldpos) :cur-rot (send *robot* *support-leg* :end-coords :worldrot)
+                :v-dt #f(5 5 0) :w-dt (float-vector 0 0 (* 0.1 (+ 1 (sin (* 2 pi (/ (* i dt) cycle)))))) :mu 0 :grid '(3 3) :flush t
+                :vertex-list vertex-list)
+     (unix:usleep (round (* dt 1000000)))
+     (incf i)
+     )
+    )
+  )
+
 (draw-dfcc :force-vec #f(200 100 1000) :moment-vec #f(-15 15 45)
            :cur-pos (send *robot* *support-leg* :end-coords :worldpos) :cur-rot (send *robot* *support-leg* :end-coords :worldrot)
            :v-dt #f(5 5 0) :w-dt #f(0 0 0.1) :mu 0 :grid '(3 3) :flush t
